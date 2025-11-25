@@ -49,6 +49,7 @@ def main():
         )
         file_id = upload_resp["file"]["id"]
         file_url = upload_resp["file"].get("url_private_download")
+        print(f"Slack file download URL: {file_url}")
     except SlackApiError as e:
         print(f"Failed to upload file: {e.response['error']}")
         file_id = None
