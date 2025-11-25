@@ -48,9 +48,11 @@ def main():
             initial_comment=":x: Build failed. Here's the full error log."
         )
         file_id = upload_resp["file"]["id"]
+        file_url = upload_resp["file"].get("url_private_download")
     except SlackApiError as e:
         print(f"Failed to upload file: {e.response['error']}")
         file_id = None
+        file_url = None
 
     # 2) Automatically post AI explanation
     try:
@@ -118,6 +120,25 @@ def main():
         )
     except SlackApiError as e:
         print(f"Failed to post message: {e.response['error']}")
+
+    # 4) Send file info to FastAPI (if available)
+    fastapi_url = os.environ.get("FASTAPI_NOTIFY_URL")
+    if fastapi_url and file_id:
+        payload = {
+            "repo": repo,
+            "branch": branch,
+            "actor": actor,
+            "run_id": run_id,
+            "run_number": run_number,
+            "slack_file_id": file_id,
+            "slack_file_url": file_url,
+            "slack_channel": channel
+        }
+        try:
+            resp = requests.post(fastapi_url, json=payload, timeout=15)
+            print(f"FastAPI notify response: {resp.status_code} {resp.text}")
+        except Exception as e:
+            print(f"Failed to notify FastAPI: {str(e)}")
 
 if __name__ == "__main__":
     main()
