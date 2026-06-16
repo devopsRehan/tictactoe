@@ -3,10 +3,10 @@ name: Slack-AI-Notifier
 on:
   workflow_dispatch:
     
-  push:
-    branches:
-      - master
-      - main
+  # push:
+  #   branches:
+  #     - master
+  #     - main
 
 permissions:
   contents: write

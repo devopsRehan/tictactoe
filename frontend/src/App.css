@@ -1,18 +1,34 @@
+* {
+  box-sizing: border-box;
+}
+
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 40px;
+  justify-content: center;
+  margin: 0;
+  padding-top: 40px;
   background-color: #f5f5f5;
 }
-h1 { color: #333; margin-bottom: 20px; }
+
+.app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+h1 {
+  color: #333;
+  margin-bottom: 20px;
+}
+
 .board {
   display: grid;
   grid-template-columns: repeat(3, 100px);
   grid-template-rows: repeat(3, 100px);
   gap: 5px;
 }
+
 .cell {
   width: 100px;
   height: 100px;
@@ -22,19 +38,41 @@ h1 { color: #333; margin-bottom: 20px; }
   align-items: center;
   justify-content: center;
   font-size: 2rem;
+  font-weight: bold;
   cursor: pointer;
   user-select: none;
+  transition: background-color 0.2s;
 }
-.cell.x { color: #d9534f; }
-.cell.o { color: #0275d8; }
+
+.cell:hover {
+  background-color: #e8e8e8;
+}
+
+.cell.x {
+  color: #d9534f;
+}
+
+.cell.o {
+  color: #0275d8;
+}
+
+.status {
+  margin-top: 20px;
+  font-size: 1.2rem;
+  color: #555;
+}
+
 .winning-message {
-  display: none;
+  display: flex;
   flex-direction: column;
   align-items: center;
   margin-top: 30px;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
 }
-.winning-message.show { display: flex; }
-#restart-button {
+
+.winning-message button {
   margin-top: 10px;
   padding: 10px 20px;
   font-size: 1rem;
@@ -43,4 +81,9 @@ h1 { color: #333; margin-bottom: 20px; }
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.winning-message button:hover {
+  background-color: #025aa5;
 }
