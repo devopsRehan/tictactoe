@@ -99,14 +99,19 @@ def main():
                     "type": "button",
                     "text": {"type": "plain_text", "text": "Suggestion Fix"},
                     "style": "primary",
-                    "url": f"https://devopsrehan.github.io/tictactoe/{run_number}/error.log",
+                    "value": json.dumps({
+                        "error_log_url": f"https://devopsrehan.github.io/tictactoe/{run_number}/error.log",
+                        "repo": repo,
+                        "branch": branch,
+                        "run_id": run_id
+                    }),
                     "action_id": "fix_click"
                 },
                 {
                     "type": "button",
                     "text": {"type": "plain_text", "text": "Re-run"},
                     "style": "danger",
-                    "value": run_id,
+                    "value": json.dumps({"run_id": run_id}),
                     "action_id": "rerun_click"
                 }
             ]
