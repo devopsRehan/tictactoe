@@ -84,10 +84,10 @@ jobs:
         run: python .github/scripts/slack_notify.py
 
 
-  Ping_FastAPI:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Ping FastAPI URL
-        run: |
-          echo "Pinging FastAPI Handler..."
-          curl --silent https://fastapi-slack-handler.onrender.com || true
+  # Ping_FastAPI:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Ping FastAPI URL
+  #       run: |
+  #         echo "Pinging FastAPI Handler..."
+  #         curl --silent https://fastapi-slack-handler.onrender.com || true
