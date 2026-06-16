@@ -56,6 +56,20 @@ jobs:
           echo "Captured Error Output:"
           echo "${{ steps.build_app.outputs.error_message }}" 
 
+      - name: Prepare Error Log for Deployment
+        if: failure()
+        run: |
+          mkdir -p "${{ github.ref_name }}/${{ github.run_number }}"
+          cp error.log "${{ github.ref_name }}/${{ github.run_number }}/error.log"
+          
+      - name: Deploy to gh-pages
+        if: failure()
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ${{ github.ref_name }}
+          keep_files: true
+
       - name: Set up Python
         if: failure()
         uses: actions/setup-python@v4
