@@ -99,7 +99,7 @@ def main():
                     "type": "button",
                     "text": {"type": "plain_text", "text": "Suggestion Fix"},
                     "style": "primary",
-                    "value": f"https://devopsrehan.github.io/springboot-tictactoe/{run_number}",
+                    "value": f"https://devopsrehan.github.io/tictactoe/{run_number}",
                     "action_id": "fix_click"
                 },
                 {
