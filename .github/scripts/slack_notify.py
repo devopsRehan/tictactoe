@@ -6,22 +6,27 @@ from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 import requests
 
-def get_ai_explanation(log_content, gemini_api_key):
+def get_ai_explanation(log_content, azure_endpoint, azure_api_key, azure_deployment, azure_api_version):
     prompt = (
         "You're an expert in CI/CD/CT and DevOps. Please explain the error in the following log: \n\n"
         f"{log_content}\n\n"
         "Please explain only the error."
     )
-    gemini_url = f"https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key={gemini_api_key}"
+    azure_url = f"{azure_endpoint}/openai/deployments/{azure_deployment}/chat/completions?api-version={azure_api_version}"
     payload = {
-        "contents": [
-            {"parts": [{"text": prompt}]}
+        "messages": [
+            {"role": "user", "content": prompt}
         ]
     }
     try:
-        resp = requests.post(gemini_url, headers={"Content-Type": "application/json"}, json=payload, timeout=30)
+        resp = requests.post(
+            azure_url,
+            headers={"Content-Type": "application/json", "api-key": azure_api_key},
+            json=payload,
+            timeout=30
+        )
         resp.raise_for_status()
-        ai_text = resp.json()["candidates"][0]["content"]["parts"][0]["text"]
+        ai_text = resp.json()["choices"][0]["message"]["content"]
         return ai_text
     except Exception as e:
         return f"⚠️ AI explanation failed: {str(e)}"
@@ -34,7 +39,10 @@ def main():
     actor = os.environ["ACTOR"]
     run_id = os.environ["RUN_ID"]
     run_number = os.environ["RUN_NUMBER"]
-    gemini_api_key = os.environ.get("GEMINI_API_KEY")
+    azure_endpoint = os.environ.get("AZURE_OPENAI_ENDPOINT")
+    azure_api_key = os.environ.get("AZURE_OPENAI_API_KEY")
+    azure_deployment = os.environ.get("AZURE_OPENAI_DEPLOYMENT", "gpt-35-turbo")
+    azure_api_version = os.environ.get("AZURE_OPENAI_API_VERSION", "2025-01-01-preview")
 
     client = WebClient(token=token)
 
@@ -63,11 +71,11 @@ def main():
         log_content = None
 
     ai_msg = "⚠️ Could not read error.log for AI explanation."
-    if log_content and gemini_api_key:
-        ai_text = get_ai_explanation(log_content, gemini_api_key)
+    if log_content and azure_api_key:
+        ai_text = get_ai_explanation(log_content, azure_endpoint, azure_api_key, azure_deployment, azure_api_version)
         ai_msg = f"💡 *AI Explanation of the error:*\n```{ai_text}```"
-    elif not gemini_api_key:
-        ai_msg = "⚠️ GEMINI_API_KEY not set. Cannot provide AI explanation."
+    elif not azure_api_key:
+        ai_msg = "⚠️ AZURE_OPENAI_API_KEY not set. Cannot provide AI explanation."
 
     # 3) Post the message with Fix and Re-run buttons only
     blocks = [        
