@@ -46,14 +46,13 @@ def main():
 
     client = WebClient(token=token)
 
-    # 1) Upload the error.log file
+    # 1) Upload the error.log file (as attachment, no comment)
     try:
         upload_resp = client.files_upload_v2(
             channel=channel,
             file="error.log",
             title="🚨 Build Error Log",
-            filename="error.log",
-            initial_comment=":x: Build failed. Here's the full error log."
+            filename="error.log"
         )
         file_id = upload_resp["file"]["id"]
         file_url = upload_resp["file"].get("url_private_download")
@@ -79,7 +78,15 @@ def main():
 
     # 3) Post the message with Fix and Re-run buttons only
     blocks = [        
-        # 1. AI explanation
+        # 1. Error log snippet
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": f":x: *Build Failed*\n```{log_content[:3000] if log_content else 'No error log available.'}```"
+            }
+        },
+        # 2. AI explanation
         {
             "type": "section",
             "text": {
@@ -87,7 +94,7 @@ def main():
                 "text": ai_msg
             }
         },
-        # 2. Info (repo, branch, actor)
+        # 3. Info (repo, branch, actor)
         {
             "type": "section",
             "text": {
@@ -99,7 +106,7 @@ def main():
                 )
             }
         },
-        # 3. Buttons
+        # 4. Buttons
         {
             "type": "actions",
             "elements": [
