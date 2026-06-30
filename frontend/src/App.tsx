@@ -113,12 +113,12 @@ function App() {
   const [cells, setCells] = useState<(Player | null)[]>(Array(9).fill(null));
   const [isXTurn, setIsXTurn] = useState(true);
   const [mode, setMode] = useState<Mode>('pvc');
+  const [humanSymbol, setHumanSymbol] = useState<Player>('X');
   const [humanFirst, setHumanFirst] = useState(true);
   const [difficulty, setDifficulty] = useState<Difficulty>('hard');
 
-  const humanSymbol: Player = humanFirst ? 'X' : 'O';
-  const computerSymbol: Player = humanFirst ? 'O' : 'X';
-  const isComputerTurn = humanFirst ? !isXTurn : isXTurn;
+  const computerSymbol: Player = humanSymbol === 'X' ? 'O' : 'X';
+  const isComputerTurn = isXTurn ? computerSymbol === 'X' : computerSymbol === 'O';
 
   const winner = calculateWinner(cells);
   const isDraw = !winner && isBoardFull(cells);
@@ -129,7 +129,7 @@ function App() {
       const newCells = [...currentCells];
       newCells[move] = computerSymbol;
       setCells(newCells);
-      setIsXTurn(computerSymbol === 'O');
+      setIsXTurn(computerSymbol !== 'X');
     }
   }, [computerSymbol, difficulty]);
 
@@ -152,26 +152,38 @@ function App() {
 
   function handleRestart() {
     setCells(Array(9).fill(null));
-    setIsXTurn(true);
+    const firstMoverSym = humanFirst ? humanSymbol : computerSymbol;
+    setIsXTurn(firstMoverSym === 'X');
   }
 
   function handleModeChange(newMode: Mode) {
     setMode(newMode);
     setCells(Array(9).fill(null));
-    setIsXTurn(true);
+    setHumanSymbol('X');
     setHumanFirst(true);
+    setIsXTurn(true);
+  }
+
+  function handleSymbolChange(sym: Player) {
+    setHumanSymbol(sym);
+    setCells(Array(9).fill(null));
+    const compSym = sym === 'X' ? 'O' : 'X';
+    const firstMoverSym = humanFirst ? sym : compSym;
+    setIsXTurn(firstMoverSym === 'X');
   }
 
   function handleFirstChange(first: boolean) {
     setHumanFirst(first);
     setCells(Array(9).fill(null));
-    setIsXTurn(true);
+    const firstMoverSym = first ? humanSymbol : computerSymbol;
+    setIsXTurn(firstMoverSym === 'X');
   }
 
   function handleDifficultyChange(d: Difficulty) {
     setDifficulty(d);
     setCells(Array(9).fill(null));
-    setIsXTurn(true);
+    const firstMoverSym = humanFirst ? humanSymbol : computerSymbol;
+    setIsXTurn(firstMoverSym === 'X');
   }
 
   let status: string;
@@ -233,15 +245,32 @@ function App() {
               className={humanFirst ? 'active' : ''}
               onClick={() => handleFirstChange(true)}
             >
-              You (X)
+              You
             </button>
             <button
               className={!humanFirst ? 'active' : ''}
               onClick={() => handleFirstChange(false)}
             >
-              Computer (X)
+              Computer
             </button>
           </div>
+          {humanFirst && (
+            <div className="first-selector">
+              <span>Play as:</span>
+              <button
+                className={humanSymbol === 'X' ? 'active' : ''}
+                onClick={() => handleSymbolChange('X')}
+              >
+                X
+              </button>
+              <button
+                className={humanSymbol === 'O' ? 'active' : ''}
+                onClick={() => handleSymbolChange('O')}
+              >
+                O
+              </button>
+            </div>
+          )}
         </>
       )}
       <Board cells={cells} onCellClick={handleCellClick} />
