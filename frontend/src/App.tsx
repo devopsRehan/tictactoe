@@ -3,6 +3,7 @@ import Board from './components/Board';
 
 type Player = 'X' | 'O';
 type Mode = 'pvp' | 'pvc';
+type Difficulty = 'easy' | 'medium' | 'hard';
 
 const WINNING_COMBINATIONS = [
   [0, 1, 2], [3, 4, 5], [6, 7, 8],
@@ -23,11 +24,19 @@ function isBoardFull(cells: (Player | null)[]): boolean {
   return cells.every((cell) => cell !== null);
 }
 
-function minimax(cells: (Player | null)[], isMaximizing: boolean, computerSym: Player): number {
+// Alpha-Beta Pruning with depth-aware scoring
+function alphaBeta(
+  cells: (Player | null)[],
+  depth: number,
+  alpha: number,
+  beta: number,
+  isMaximizing: boolean,
+  computerSym: Player,
+): number {
   const humanSym: Player = computerSym === 'O' ? 'X' : 'O';
   const winner = calculateWinner(cells);
-  if (winner === computerSym) return 10;
-  if (winner === humanSym) return -10;
+  if (winner === computerSym) return 10 - depth; // prefer faster wins
+  if (winner === humanSym) return depth - 10;     // prefer slower losses
   if (isBoardFull(cells)) return 0;
 
   if (isMaximizing) {
@@ -35,8 +44,10 @@ function minimax(cells: (Player | null)[], isMaximizing: boolean, computerSym: P
     for (let i = 0; i < 9; i++) {
       if (!cells[i]) {
         cells[i] = computerSym;
-        best = Math.max(best, minimax(cells, false, computerSym));
+        best = Math.max(best, alphaBeta(cells, depth + 1, alpha, beta, false, computerSym));
         cells[i] = null;
+        alpha = Math.max(alpha, best);
+        if (beta <= alpha) break; // prune
       }
     }
     return best;
@@ -45,21 +56,23 @@ function minimax(cells: (Player | null)[], isMaximizing: boolean, computerSym: P
     for (let i = 0; i < 9; i++) {
       if (!cells[i]) {
         cells[i] = humanSym;
-        best = Math.min(best, minimax(cells, true, computerSym));
+        best = Math.min(best, alphaBeta(cells, depth + 1, alpha, beta, true, computerSym));
         cells[i] = null;
+        beta = Math.min(beta, best);
+        if (beta <= alpha) break; // prune
       }
     }
     return best;
   }
 }
 
-function getBestMove(cells: (Player | null)[], computerSym: Player): number {
+function getOptimalMove(cells: (Player | null)[], computerSym: Player): number {
   let bestScore = -Infinity;
   let bestMove = -1;
   for (let i = 0; i < 9; i++) {
     if (!cells[i]) {
       cells[i] = computerSym;
-      const score = minimax(cells, false, computerSym);
+      const score = alphaBeta(cells, 0, -Infinity, Infinity, false, computerSym);
       cells[i] = null;
       if (score > bestScore) {
         bestScore = score;
@@ -70,11 +83,38 @@ function getBestMove(cells: (Player | null)[], computerSym: Player): number {
   return bestMove;
 }
 
+function getRandomMove(cells: (Player | null)[]): number {
+  const available = cells.reduce<number[]>((acc, cell, i) => {
+    if (!cell) acc.push(i);
+    return acc;
+  }, []);
+  return available[Math.floor(Math.random() * available.length)];
+}
+
+function getMove(cells: (Player | null)[], computerSym: Player, difficulty: Difficulty): number {
+  switch (difficulty) {
+    case 'easy':
+      // 20% chance of optimal move, 80% random
+      return Math.random() < 0.2
+        ? getOptimalMove(cells, computerSym)
+        : getRandomMove(cells);
+    case 'medium':
+      // 60% chance of optimal move, 40% random
+      return Math.random() < 0.6
+        ? getOptimalMove(cells, computerSym)
+        : getRandomMove(cells);
+    case 'hard':
+      // Always optimal (unbeatable)
+      return getOptimalMove(cells, computerSym);
+  }
+}
+
 function App() {
   const [cells, setCells] = useState<(Player | null)[]>(Array(9).fill(null));
   const [isXTurn, setIsXTurn] = useState(true);
   const [mode, setMode] = useState<Mode>('pvc');
   const [humanFirst, setHumanFirst] = useState(true);
+  const [difficulty, setDifficulty] = useState<Difficulty>('hard');
 
   const humanSymbol: Player = humanFirst ? 'X' : 'O';
   const computerSymbol: Player = humanFirst ? 'O' : 'X';
@@ -84,14 +124,14 @@ function App() {
   const isDraw = !winner && isBoardFull(cells);
 
   const makeAiMove = useCallback((currentCells: (Player | null)[]) => {
-    const move = getBestMove([...currentCells], computerSymbol);
+    const move = getMove([...currentCells], computerSymbol, difficulty);
     if (move !== -1) {
       const newCells = [...currentCells];
       newCells[move] = computerSymbol;
       setCells(newCells);
       setIsXTurn(computerSymbol === 'O');
     }
-  }, [computerSymbol]);
+  }, [computerSymbol, difficulty]);
 
   useEffect(() => {
     if (mode === 'pvc' && isComputerTurn && !winner && !isDraw) {
@@ -128,6 +168,12 @@ function App() {
     setIsXTurn(true);
   }
 
+  function handleDifficultyChange(d: Difficulty) {
+    setDifficulty(d);
+    setCells(Array(9).fill(null));
+    setIsXTurn(true);
+  }
+
   let status: string;
   if (winner) {
     status = mode === 'pvc'
@@ -159,21 +205,44 @@ function App() {
         </button>
       </div>
       {mode === 'pvc' && (
-        <div className="first-selector">
-          <span>First move:</span>
-          <button
-            className={humanFirst ? 'active' : ''}
-            onClick={() => handleFirstChange(true)}
-          >
-            You (X)
-          </button>
-          <button
-            className={!humanFirst ? 'active' : ''}
-            onClick={() => handleFirstChange(false)}
-          >
-            Computer (X)
-          </button>
-        </div>
+        <>
+          <div className="difficulty-selector">
+            <span>Difficulty:</span>
+            <button
+              className={difficulty === 'easy' ? 'active' : ''}
+              onClick={() => handleDifficultyChange('easy')}
+            >
+              Easy
+            </button>
+            <button
+              className={difficulty === 'medium' ? 'active' : ''}
+              onClick={() => handleDifficultyChange('medium')}
+            >
+              Medium
+            </button>
+            <button
+              className={difficulty === 'hard' ? 'active' : ''}
+              onClick={() => handleDifficultyChange('hard')}
+            >
+              Hard
+            </button>
+          </div>
+          <div className="first-selector">
+            <span>First move:</span>
+            <button
+              className={humanFirst ? 'active' : ''}
+              onClick={() => handleFirstChange(true)}
+            >
+              You (X)
+            </button>
+            <button
+              className={!humanFirst ? 'active' : ''}
+              onClick={() => handleFirstChange(false)}
+            >
+              Computer (X)
+            </button>
+          </div>
+        </>
       )}
       <Board cells={cells} onCellClick={handleCellClick} currentPlayer={isXTurn ? 'X' : 'O'} />
       {(winner || isDraw) && (
