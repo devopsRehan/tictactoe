@@ -5,14 +5,14 @@ type Player = 'X' | 'O';
 interface BoardProps {
   cells: (Player | null)[];
   onCellClick: (index: number) => void;
-  fadingIndex: number;
+  fadingIndices: number[];
 }
 
-function Board({ cells, onCellClick, fadingIndex }: BoardProps) {
+function Board({ cells, onCellClick, fadingIndices }: BoardProps) {
   return (
     <div className="board">
       {cells.map((value, index) => (
-        <Cell key={index} value={value} onClick={() => onCellClick(index)} fading={index === fadingIndex} />
+        <Cell key={index} value={value} onClick={() => onCellClick(index)} fading={fadingIndices.includes(index)} />
       ))}
     </div>
   );

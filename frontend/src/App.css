@@ -420,6 +420,51 @@ h1 {
   }
 }
 
+/* DOS Terminal Rules Panel */
+.dos-terminal {
+  margin-top: 16px;
+  width: 100%;
+  max-width: 280px;
+  border: 2px solid #aaa;
+  background: #000080;
+  box-shadow:
+    inset 1px 1px 0 #ccc,
+    inset -1px -1px 0 #555,
+    0 0 10px rgba(0, 0, 128, 0.3);
+}
+
+.dos-titlebar {
+  background: #aaa;
+  color: #000080;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.35rem;
+  padding: 3px 6px;
+  text-align: center;
+  letter-spacing: 1px;
+}
+
+.dos-body {
+  padding: 8px 10px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.35rem;
+  line-height: 1.8;
+  color: #aaa;
+}
+
+.dos-body p {
+  margin: 0;
+  white-space: pre;
+}
+
+.dos-blink {
+  animation: dos-cursor 1s step-end infinite;
+}
+
+@keyframes dos-cursor {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
 /* Author Footer */
 .author {
   margin-top: 18px;

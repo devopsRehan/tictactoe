@@ -385,7 +385,7 @@ function App() {
           )}
         </>
       )}
-      <Board cells={cells} onCellClick={handleCellClick} fadingIndex={isXTurn ? xFading : oFading} />
+      <Board cells={cells} onCellClick={handleCellClick} fadingIndices={[xFading, oFading].filter(i => i !== -1)} />
       {(winner || isDraw) && (
         <div className="winning-message show">
           <span>{status}</span>
@@ -393,6 +393,43 @@ function App() {
         </div>
       )}
       {!winner && !isDraw && <p className="status">{status}</p>}
+      <div className="dos-terminal">
+        <div className="dos-titlebar">C:\TICTACTOE\RULES.TXT</div>
+        <div className="dos-body">
+          {rules === 'classic' ? (
+            <>
+              <p>&gt; CLASSIC MODE</p>
+              <p>─────────────────────────────</p>
+              <p>1. Two players take turns</p>
+              <p>2. X always goes first</p>
+              <p>3. Place your mark on any</p>
+              <p>   empty cell</p>
+              <p>4. Get 3 in a row (horizontal,</p>
+              <p>   vertical, or diagonal) to win</p>
+              <p>5. If all 9 cells are filled</p>
+              <p>   with no winner, it's a draw</p>
+              <p>─────────────────────────────</p>
+              <p className="dos-blink">_</p>
+            </>
+          ) : (
+            <>
+              <p>&gt; VANISH MODE</p>
+              <p>─────────────────────────────</p>
+              <p>1. Each player can have only</p>
+              <p>   3 marks on the board</p>
+              <p>2. When you place a 4th mark,</p>
+              <p>   your oldest mark vanishes!</p>
+              <p>3. Fading marks show which</p>
+              <p>   piece will disappear next</p>
+              <p>4. Get 3 in a row to win</p>
+              <p>5. The game never fills up -</p>
+              <p>   think ahead!</p>
+              <p>─────────────────────────────</p>
+              <p className="dos-blink">_</p>
+            </>
+          )}
+        </div>
+      </div>
       <footer className="author">
         <p>Built by <strong>Rehan Khan</strong></p>
         <p className="author-tags">DevSecOps | MLOps | GenAIOps | AI/ML/RL</p>
