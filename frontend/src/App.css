@@ -371,10 +371,10 @@ h1 {
   color: #999;
 }
 
-.author-tags {
+.author .author-tags {
   margin-top: 8px;
   font-size: 0.35rem;
-  color: #ffffff;
+  color: #fff;
 }
 
 .author-links {
