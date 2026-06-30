@@ -281,6 +281,14 @@ function App() {
         </div>
       )}
       {!winner && !isDraw && <p className="status">{status}</p>}
+      <footer className="author">
+        <p>Built by <strong>Rehan Khan</strong></p>
+        <p className="author-tags">DevSecOps | MLOps | GenAIOps | AI/ML/RL</p>
+        <div className="author-links">
+          <a href="https://github.com/devopsRehan" target="_blank" rel="noopener noreferrer">GitHub</a>
+          <a href="https://www.linkedin.com/in/rehan-khan-devops/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        </div>
+      </footer>
     </div>
   );
 }

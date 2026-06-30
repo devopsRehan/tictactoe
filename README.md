@@ -83,7 +83,7 @@ This project is licensed under the [MIT License](LICENSE).
 ## 🧠 Author
 
 **Rehan Khan**  
-DevOps | GitHub Actions | Java | AI  
+DevSecOps | MLOps | GenAIOps | AI/ML/RL 
 [GitHub](https://github.com/devopsRehan) • [LinkedIn](https://www.linkedin.com/in/rehan-khan-devops/)
 
 ---

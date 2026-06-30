@@ -271,3 +271,46 @@ h1 {
     font-size: 0.85rem;
   }
 }
+
+/* Author Footer */
+.author {
+  margin-top: 20px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
+}
+
+.author p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.author strong {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.author-tags {
+  margin-top: 2px;
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.author-links {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.author-links a {
+  font-size: 0.75rem;
+  color: #64b5f6;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.author-links a:hover {
+  color: #90caf9;
+  text-decoration: underline;
+}
