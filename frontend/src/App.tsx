@@ -220,55 +220,61 @@ function App() {
         <>
           <div className="difficulty-selector">
             <span>Difficulty:</span>
-            <button
-              className={difficulty === 'easy' ? 'active' : ''}
-              onClick={() => handleDifficultyChange('easy')}
-            >
-              Easy
-            </button>
-            <button
-              className={difficulty === 'medium' ? 'active' : ''}
-              onClick={() => handleDifficultyChange('medium')}
-            >
-              Medium
-            </button>
-            <button
-              className={difficulty === 'hard' ? 'active' : ''}
-              onClick={() => handleDifficultyChange('hard')}
-            >
-              Hard
-            </button>
+            <div className="seg-group">
+              <button
+                className={difficulty === 'easy' ? 'active' : ''}
+                onClick={() => handleDifficultyChange('easy')}
+              >
+                Easy
+              </button>
+              <button
+                className={difficulty === 'medium' ? 'active' : ''}
+                onClick={() => handleDifficultyChange('medium')}
+              >
+                Medium
+              </button>
+              <button
+                className={difficulty === 'hard' ? 'active' : ''}
+                onClick={() => handleDifficultyChange('hard')}
+              >
+                Hard
+              </button>
+            </div>
           </div>
           <div className="first-selector">
             <span>First move:</span>
-            <button
-              className={humanFirst ? 'active' : ''}
-              onClick={() => handleFirstChange(true)}
-            >
-              You
-            </button>
-            <button
-              className={!humanFirst ? 'active' : ''}
-              onClick={() => handleFirstChange(false)}
-            >
-              Computer
-            </button>
+            <div className="seg-group">
+              <button
+                className={humanFirst ? 'active' : ''}
+                onClick={() => handleFirstChange(true)}
+              >
+                You
+              </button>
+              <button
+                className={!humanFirst ? 'active' : ''}
+                onClick={() => handleFirstChange(false)}
+              >
+                Computer
+              </button>
+            </div>
           </div>
           {humanFirst && (
             <div className="first-selector">
               <span>Play as:</span>
-              <button
-                className={humanSymbol === 'X' ? 'active' : ''}
-                onClick={() => handleSymbolChange('X')}
-              >
-                X
-              </button>
-              <button
-                className={humanSymbol === 'O' ? 'active' : ''}
-                onClick={() => handleSymbolChange('O')}
-              >
-                O
-              </button>
+              <div className="seg-group">
+                <button
+                  className={humanSymbol === 'X' ? 'active' : ''}
+                  onClick={() => handleSymbolChange('X')}
+                >
+                  X
+                </button>
+                <button
+                  className={humanSymbol === 'O' ? 'active' : ''}
+                  onClick={() => handleSymbolChange('O')}
+                >
+                  O
+                </button>
+              </div>
             </div>
           )}
         </>
