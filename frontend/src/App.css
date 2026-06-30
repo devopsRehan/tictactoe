@@ -48,6 +48,38 @@ h1 {
   background-color: #e8f4ff;
 }
 
+.first-selector {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.first-selector span {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.first-selector button {
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  border: 2px solid #5cb85c;
+  border-radius: 4px;
+  background-color: #fff;
+  color: #5cb85c;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.first-selector button.active {
+  background-color: #5cb85c;
+  color: #fff;
+}
+
+.first-selector button:hover:not(.active) {
+  background-color: #eafbea;
+}
+
 .board {
   display: grid;
   grid-template-columns: repeat(3, 100px);
