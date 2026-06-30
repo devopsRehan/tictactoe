@@ -3,10 +3,11 @@ type Player = 'X' | 'O';
 interface CellProps {
   value: Player | null;
   onClick: () => void;
+  fading: boolean;
 }
 
-function Cell({ value, onClick }: CellProps) {
-  const className = `cell${value ? ` ${value.toLowerCase()}` : ''}`;
+function Cell({ value, onClick, fading }: CellProps) {
+  const className = `cell${value ? ` ${value.toLowerCase()}` : ''}${fading ? ' fading' : ''}`;
 
   function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === 'Enter' || e.key === ' ') {
