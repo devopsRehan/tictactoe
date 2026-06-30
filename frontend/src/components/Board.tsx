@@ -1,14 +1,15 @@
 import Cell from './Cell';
 
+type Player = 'X' | 'O';
+
 interface BoardProps {
-  cells: (string | null)[];
+  cells: (Player | null)[];
   onCellClick: (index: number) => void;
-  currentPlayer: 'X' | 'O';
 }
 
-function Board({ cells, onCellClick, currentPlayer }: BoardProps) {
+function Board({ cells, onCellClick }: BoardProps) {
   return (
-    <div className={`board ${currentPlayer.toLowerCase()}`}>
+    <div className="board">
       {cells.map((value, index) => (
         <Cell key={index} value={value} onClick={() => onCellClick(index)} />
       ))}

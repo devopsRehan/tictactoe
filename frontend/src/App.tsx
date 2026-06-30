@@ -138,7 +138,7 @@ function App() {
       const timeout = setTimeout(() => makeAiMove(cells), 300);
       return () => clearTimeout(timeout);
     }
-  }, [isXTurn, cells, winner, isDraw, mode, makeAiMove, isComputerTurn]);
+  }, [cells, winner, isDraw, mode, makeAiMove, isComputerTurn]);
 
   function handleCellClick(index: number) {
     if (cells[index] || winner) return;
@@ -244,7 +244,7 @@ function App() {
           </div>
         </>
       )}
-      <Board cells={cells} onCellClick={handleCellClick} currentPlayer={isXTurn ? 'X' : 'O'} />
+      <Board cells={cells} onCellClick={handleCellClick} />
       {(winner || isDraw) && (
         <div className="winning-message show">
           <span>{status}</span>
