@@ -1,147 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
 import Board from './components/Board';
+import { Player, Difficulty, MAX_MARKS, calculateWinner, isBoardFull, placeWithVanish } from './ai/types';
+import { getClassicMove } from './ai/alphaBeta';
+import { getVanishMove } from './ai/mcts';
 
-type Player = 'X' | 'O';
 type Mode = 'pvp' | 'pvc';
-type Difficulty = 'easy' | 'medium' | 'hard';
 type Rules = 'classic' | 'vanish';
 
-const MAX_MARKS = 3; // each player can have at most 3 marks
-const MAX_TOTAL_MOVES = 50; // draw if no winner after this many moves
-
-const WINNING_COMBINATIONS = [
-  [0, 1, 2], [3, 4, 5], [6, 7, 8],
-  [0, 3, 6], [1, 4, 7], [2, 5, 8],
-  [0, 4, 8], [2, 4, 6],
-];
-
-function calculateWinner(cells: (Player | null)[]): Player | null {
-  for (const [a, b, c] of WINNING_COMBINATIONS) {
-    if (cells[a] && cells[a] === cells[b] && cells[a] === cells[c]) {
-      return cells[a];
-    }
-  }
-  return null;
-}
-
-// Simulate placing a mark with vanishing logic
-function placeWithVanish(
-  cells: (Player | null)[],
-  index: number,
-  player: Player,
-  xMoves: number[],
-  oMoves: number[],
-): { newCells: (Player | null)[]; newXMoves: number[]; newOMoves: number[] } {
-  const newCells = [...cells];
-  const newXMoves = [...xMoves];
-  const newOMoves = [...oMoves];
-
-  const moves = player === 'X' ? newXMoves : newOMoves;
-
-  // If this player already has MAX_MARKS, remove the oldest
-  if (moves.length >= MAX_MARKS) {
-    const oldest = moves.shift()!;
-    newCells[oldest] = null;
-  }
-
-  newCells[index] = player;
-  if (player === 'X') {
-    newXMoves.push(index);
-  } else {
-    newOMoves.push(index);
-  }
-
-  return { newCells, newXMoves, newOMoves };
-}
-
-// Alpha-Beta Pruning with vanishing marks
-function alphaBeta(
-  cells: (Player | null)[],
-  xMoves: number[],
-  oMoves: number[],
-  depth: number,
-  maxDepth: number,
-  alpha: number,
-  beta: number,
-  isMaximizing: boolean,
-  computerSym: Player,
-): number {
-  const humanSym: Player = computerSym === 'O' ? 'X' : 'O';
-  const winner = calculateWinner(cells);
-  if (winner === computerSym) return 10 - depth;
-  if (winner === humanSym) return depth - 10;
-  if (depth >= maxDepth) return 0; // depth limit to avoid infinite search
-
-  if (isMaximizing) {
-    let best = -Infinity;
-    for (let i = 0; i < 9; i++) {
-      if (!cells[i]) {
-        const { newCells, newXMoves, newOMoves } = placeWithVanish(cells, i, computerSym, xMoves, oMoves);
-        // Check if vanishing caused opponent to lose a win — skip if vanish breaks state
-        best = Math.max(best, alphaBeta(newCells, newXMoves, newOMoves, depth + 1, maxDepth, alpha, beta, false, computerSym));
-        alpha = Math.max(alpha, best);
-        if (beta <= alpha) break;
-      }
-    }
-    return best === -Infinity ? 0 : best;
-  } else {
-    let best = Infinity;
-    for (let i = 0; i < 9; i++) {
-      if (!cells[i]) {
-        const { newCells, newXMoves, newOMoves } = placeWithVanish(cells, i, humanSym, xMoves, oMoves);
-        best = Math.min(best, alphaBeta(newCells, newXMoves, newOMoves, depth + 1, maxDepth, alpha, beta, true, computerSym));
-        beta = Math.min(beta, best);
-        if (beta <= alpha) break;
-      }
-    }
-    return best === Infinity ? 0 : best;
-  }
-}
-
-function getOptimalMove(cells: (Player | null)[], computerSym: Player, xMoves: number[], oMoves: number[]): number {
-  let bestScore = -Infinity;
-  let bestMove = -1;
-  // Limit search depth to keep AI responsive with vanishing
-  const maxDepth = 8;
-  for (let i = 0; i < 9; i++) {
-    if (!cells[i]) {
-      const { newCells, newXMoves, newOMoves } = placeWithVanish(cells, i, computerSym, xMoves, oMoves);
-      const score = alphaBeta(newCells, newXMoves, newOMoves, 0, maxDepth, -Infinity, Infinity, false, computerSym);
-      if (score > bestScore) {
-        bestScore = score;
-        bestMove = i;
-      }
-    }
-  }
-  return bestMove;
-}
-
-function getRandomMove(cells: (Player | null)[]): number {
-  const available = cells.reduce<number[]>((acc, cell, i) => {
-    if (!cell) acc.push(i);
-    return acc;
-  }, []);
-  return available[Math.floor(Math.random() * available.length)];
-}
-
-function getMove(cells: (Player | null)[], computerSym: Player, difficulty: Difficulty, xMoves: number[], oMoves: number[]): number {
-  switch (difficulty) {
-    case 'easy':
-      return Math.random() < 0.2
-        ? getOptimalMove(cells, computerSym, xMoves, oMoves)
-        : getRandomMove(cells);
-    case 'medium':
-      return Math.random() < 0.6
-        ? getOptimalMove(cells, computerSym, xMoves, oMoves)
-        : getRandomMove(cells);
-    case 'hard':
-      return getOptimalMove(cells, computerSym, xMoves, oMoves);
-  }
-}
-
-function isBoardFull(cells: (Player | null)[]): boolean {
-  return cells.every((cell) => cell !== null);
-}
+const MAX_TOTAL_MOVES = 50;
 
 function App() {
   const [cells, setCells] = useState<(Player | null)[]>(Array(9).fill(null));
@@ -167,7 +33,9 @@ function App() {
 
   const makeAiMove = useCallback((currentCells: (Player | null)[], curXMoves: number[], curOMoves: number[]) => {
     if (rules === 'vanish') {
-      const move = getMove([...currentCells], computerSymbol, difficulty, curXMoves, curOMoves);
+      // MCTS for vanish mode
+      const curIsXTurn = computerSymbol === 'X';
+      const move = getVanishMove([...currentCells], computerSymbol, curXMoves, curOMoves, curIsXTurn, difficulty);
       if (move !== -1 && move !== undefined) {
         const { newCells, newXMoves, newOMoves } = placeWithVanish(currentCells, move, computerSymbol, curXMoves, curOMoves);
         setCells(newCells);
@@ -177,7 +45,8 @@ function App() {
         setTotalMoves((m) => m + 1);
       }
     } else {
-      const move = getMove([...currentCells], computerSymbol, difficulty, [], []);
+      // Alpha-Beta for classic mode
+      const move = getClassicMove([...currentCells], computerSymbol, difficulty);
       if (move !== -1 && move !== undefined) {
         const newCells = [...currentCells];
         newCells[move] = computerSymbol;
