@@ -11,6 +11,11 @@ interface CellProps {
 
 const Cell = memo(function Cell({ index, value, onClick, fading, winning }: CellProps) {
   const className = `cell${value ? ` ${value.toLowerCase()}` : ''}${fading ? ' fading' : ''}${winning ? ' winning' : ''}`;
+  const row = Math.floor(index / 3) + 1;
+  const col = (index % 3) + 1;
+  const label = value
+    ? `Row ${row}, Column ${col}: ${value}`
+    : `Row ${row}, Column ${col}: empty`;
 
   const handleClick = useCallback(() => onClick(index), [onClick, index]);
 
@@ -26,7 +31,7 @@ const Cell = memo(function Cell({ index, value, onClick, fading, winning }: Cell
       className={className}
       role="button"
       tabIndex={0}
-      aria-label={value ? `Cell ${value}` : 'Empty cell'}
+      aria-label={label}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
     >

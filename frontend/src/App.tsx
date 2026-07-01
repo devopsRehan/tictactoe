@@ -148,7 +148,7 @@ function App() {
         )}
         {!winner && !isDraw && <p className="status">{status}</p>}
       </div>
-      <div className="dos-terminal">
+      <div className="dos-terminal" role="region" aria-label="Game rules">
         <div className="dos-titlebar">C:\TICTACTOE\RULES.TXT</div>
         <div className="dos-body">
           {rules === 'classic' ? (
