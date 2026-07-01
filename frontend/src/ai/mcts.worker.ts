@@ -153,9 +153,19 @@ export interface MCTSWorkerResponse {
 // Web Worker message handler
 self.onmessage = (e: MessageEvent<MCTSWorkerRequest>) => {
   const { cells, computerSym, xMoves, oMoves, isXTurn, difficulty } = e.data;
+
+  // Easy/Medium: chance of picking a random move instead of optimal
+  const randomChance = { easy: 0.6, medium: 0.25, hard: 0 };
+  const available = getAvailableMoves(cells);
+
+  if (available.length > 0 && Math.random() < randomChance[difficulty]) {
+    const move = available[Math.floor(Math.random() * available.length)];
+    self.postMessage({ move } as MCTSWorkerResponse);
+    return;
+  }
+
   const iterationsByDifficulty = { easy: 500, medium: 2000, hard: 10000 };
   const iterations = iterationsByDifficulty[difficulty];
   const move = mctsSearch(cells, xMoves, oMoves, isXTurn, computerSym, iterations);
-  const response: MCTSWorkerResponse = { move };
-  self.postMessage(response);
+  self.postMessage({ move } as MCTSWorkerResponse);
 };
