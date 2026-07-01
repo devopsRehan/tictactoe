@@ -1,0 +1,83 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Press Start 2P', monospace;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+  padding: 16px;
+  min-height: 100vh;
+  background: #0a0a0a;
+  image-rendering: pixelated;
+}
+
+/* Scanline overlay */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.15) 0px,
+    rgba(0, 0, 0, 0.15) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  pointer-events: none;
+  z-index: 100;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #111;
+  border: 3px solid #333;
+  border-radius: 0;
+  padding: 24px 28px 28px;
+  box-shadow:
+    0 0 0 3px #000,
+    0 0 20px rgba(0, 255, 200, 0.1),
+    inset 0 0 30px rgba(0, 0, 0, 0.5);
+}
+
+h1 {
+  color: #0ff;
+  margin: 0 0 16px;
+  font-size: 1.1rem;
+  font-weight: 400;
+  letter-spacing: 2px;
+  text-shadow:
+    0 0 4px #0ff,
+    0 0 10px #0ff,
+    0 0 20px rgba(0, 255, 255, 0.4);
+  animation: flicker 3s infinite alternate;
+}
+
+@keyframes flicker {
+  0%, 95% { opacity: 1; }
+  96% { opacity: 0.85; }
+  97% { opacity: 1; }
+  98% { opacity: 0.9; }
+  100% { opacity: 1; }
+}
+
+button:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+/* Responsive: smaller screens */
+@media (max-height: 600px), (max-width: 400px) {
+  .app {
+    padding: 14px 18px 16px;
+  }
+
+  h1 {
+    font-size: 0.85rem;
+    margin-bottom: 10px;
+  }
+}

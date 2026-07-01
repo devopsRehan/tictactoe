@@ -1,0 +1,215 @@
+/* Segmented Controls - Retro */
+.mode-selector {
+  display: flex;
+  margin-bottom: 14px;
+  border: 2px solid #444;
+  background: #000;
+}
+
+.mode-selector button {
+  padding: 6px 14px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.5rem;
+  font-weight: 400;
+  border: none;
+  background: #1a1a1a;
+  color: #0ff;
+  cursor: pointer;
+  transition: all 0.1s;
+  border-right: 1px solid #333;
+  text-shadow: 0 0 4px rgba(0, 255, 255, 0.5);
+}
+
+.mode-selector button:last-child {
+  border-right: none;
+}
+
+.mode-selector button.active {
+  background: #0ff;
+  color: #000;
+  text-shadow: none;
+  box-shadow: inset 0 -2px 0 #099, 0 0 8px rgba(0, 255, 255, 0.5);
+}
+
+.mode-selector button:hover:not(.active) {
+  background: #222;
+}
+
+.mode-selector button:active:not(.active) {
+  background: #333;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+/* Rules Selector */
+.rules-selector {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.rules-selector span {
+  font-size: 0.45rem;
+  color: #f0f;
+  text-transform: uppercase;
+  text-shadow: 0 0 4px rgba(255, 0, 255, 0.5);
+}
+
+.rules-selector .seg-group {
+  display: flex;
+  border: 2px solid #444;
+  background: #000;
+}
+
+.rules-selector button {
+  padding: 5px 10px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.45rem;
+  font-weight: 400;
+  border: none;
+  background: #1a1a1a;
+  color: #f0f;
+  cursor: pointer;
+  transition: all 0.1s;
+  border-right: 1px solid #333;
+  text-shadow: 0 0 4px rgba(255, 0, 255, 0.5);
+}
+
+.rules-selector button:last-child {
+  border-right: none;
+}
+
+.rules-selector button.active {
+  background: #f0f;
+  color: #000;
+  text-shadow: none;
+  box-shadow: inset 0 -2px 0 #909, 0 0 8px rgba(255, 0, 255, 0.5);
+}
+
+.rules-selector button:hover:not(.active) {
+  background: #222;
+}
+
+.rules-selector button:active:not(.active) {
+  background: #333;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+/* Difficulty Selector */
+.difficulty-selector {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.difficulty-selector span {
+  font-size: 0.45rem;
+  color: #f90;
+  text-transform: uppercase;
+  text-shadow: 0 0 4px rgba(255, 153, 0, 0.5);
+}
+
+.difficulty-selector .seg-group {
+  display: flex;
+  border: 2px solid #444;
+  background: #000;
+}
+
+.difficulty-selector button {
+  padding: 5px 10px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.45rem;
+  font-weight: 400;
+  border: none;
+  background: #1a1a1a;
+  color: #f90;
+  cursor: pointer;
+  transition: all 0.1s;
+  border-right: 1px solid #333;
+  text-shadow: 0 0 4px rgba(255, 153, 0, 0.5);
+}
+
+.difficulty-selector button:last-child {
+  border-right: none;
+}
+
+.difficulty-selector button.active {
+  background: #f90;
+  color: #000;
+  text-shadow: none;
+  box-shadow: inset 0 -2px 0 #a60, 0 0 8px rgba(255, 153, 0, 0.5);
+}
+
+.difficulty-selector button:hover:not(.active) {
+  background: #222;
+}
+
+.difficulty-selector button:active:not(.active) {
+  background: #333;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+/* First Selector / Play As */
+.first-selector {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.first-selector span {
+  font-size: 0.45rem;
+  color: #0f0;
+  text-transform: uppercase;
+  text-shadow: 0 0 4px rgba(0, 255, 0, 0.5);
+}
+
+.first-selector .seg-group {
+  display: flex;
+  border: 2px solid #444;
+  background: #000;
+}
+
+.first-selector button {
+  padding: 5px 10px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.45rem;
+  font-weight: 400;
+  border: none;
+  background: #1a1a1a;
+  color: #0f0;
+  cursor: pointer;
+  transition: all 0.1s;
+  border-right: 1px solid #333;
+  text-shadow: 0 0 4px rgba(0, 255, 0, 0.5);
+}
+
+.first-selector button:last-child {
+  border-right: none;
+}
+
+.first-selector button.active {
+  background: #0f0;
+  color: #000;
+  text-shadow: none;
+  box-shadow: inset 0 -2px 0 #090, 0 0 8px rgba(0, 255, 0, 0.5);
+}
+
+.first-selector button:hover:not(.active) {
+  background: #222;
+}
+
+.first-selector button:active:not(.active) {
+  background: #333;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+@media (max-height: 600px), (max-width: 400px) {
+  .mode-selector,
+  .rules-selector,
+  .difficulty-selector,
+  .first-selector {
+    margin-bottom: 6px;
+  }
+}
