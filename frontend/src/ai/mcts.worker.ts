@@ -153,7 +153,7 @@ export interface MCTSWorkerResponse {
 // Web Worker message handler
 self.onmessage = (e: MessageEvent<MCTSWorkerRequest>) => {
   const { cells, computerSym, xMoves, oMoves, isXTurn, difficulty } = e.data;
-  const iterationsByDifficulty = { easy: 500, medium: 3000, hard: 10000 };
+  const iterationsByDifficulty = { easy: 500, medium: 2000, hard: 10000 };
   const iterations = iterationsByDifficulty[difficulty];
   const move = mctsSearch(cells, xMoves, oMoves, isXTurn, computerSym, iterations);
   const response: MCTSWorkerResponse = { move };
