@@ -44,6 +44,31 @@ body::after {
     inset 0 0 30px rgba(0, 0, 0, 0.5);
 }
 
+/* Two-column layout: game on left, rules on right */
+.app-layout {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.app-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.app-sidebar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 h1 {
   color: #0ff;
   margin: 0 0 16px;
@@ -70,10 +95,16 @@ button:focus-visible {
   outline-offset: 2px;
 }
 
-/* Responsive: smaller screens */
-@media (max-height: 600px), (max-width: 400px) {
+/* Responsive: smaller screens - stack vertically */
+@media (max-height: 600px), (max-width: 650px) {
   .app {
     padding: 14px 18px 16px;
+  }
+
+  .app-layout {
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
   }
 
   h1 {
