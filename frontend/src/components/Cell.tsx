@@ -1,19 +1,22 @@
-import { memo } from 'react';
+import { memo, useCallback } from 'react';
 import type { Player } from '../ai/types';
 
 interface CellProps {
+  index: number;
   value: Player | null;
-  onClick: () => void;
+  onClick: (index: number) => void;
   fading: boolean;
 }
 
-const Cell = memo(function Cell({ value, onClick, fading }: CellProps) {
+const Cell = memo(function Cell({ index, value, onClick, fading }: CellProps) {
   const className = `cell${value ? ` ${value.toLowerCase()}` : ''}${fading ? ' fading' : ''}`;
+
+  const handleClick = useCallback(() => onClick(index), [onClick, index]);
 
   function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
-      onClick();
+      handleClick();
     }
   }
 
@@ -23,7 +26,7 @@ const Cell = memo(function Cell({ value, onClick, fading }: CellProps) {
       role="button"
       tabIndex={0}
       aria-label={value ? `Cell ${value}` : 'Empty cell'}
-      onClick={onClick}
+      onClick={handleClick}
       onKeyDown={handleKeyDown}
     >
       {value}

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Player, Difficulty, MAX_MARKS, calculateWinner, isBoardFull, placeWithVanish } from '../ai/types';
 import { getClassicMove } from '../ai/alphaBeta';
 import type { MCTSWorkerRequest, MCTSWorkerResponse } from '../ai/mcts.worker';
@@ -24,26 +24,54 @@ export function useGameState() {
   const [totalMoves, setTotalMoves] = useState(0);
 
   const workerRef = useRef<Worker | null>(null);
-
-  // Initialize Web Worker for MCTS
-  useEffect(() => {
-    workerRef.current = new Worker(
-      new URL('../ai/mcts.worker.ts', import.meta.url),
-      { type: 'module' }
-    );
-    return () => {
-      workerRef.current?.terminate();
-    };
-  }, []);
+  const pendingMoveRef = useRef<{
+    cells: (Player | null)[];
+    computerSymbol: Player;
+    xMoves: number[];
+    oMoves: number[];
+  } | null>(null);
 
   const computerSymbol: Player = humanSymbol === 'X' ? 'O' : 'X';
   const isComputerTurn = isXTurn ? computerSymbol === 'X' : computerSymbol === 'O';
 
-  const winner = calculateWinner(cells);
-  const isDraw = !winner && (rules === 'classic' ? isBoardFull(cells) : totalMoves >= MAX_TOTAL_MOVES);
+  const winner = useMemo(() => calculateWinner(cells), [cells]);
+  const isDraw = useMemo(
+    () => !winner && (rules === 'classic' ? isBoardFull(cells) : totalMoves >= MAX_TOTAL_MOVES),
+    [winner, rules, cells, totalMoves]
+  );
 
   const xFading = rules === 'vanish' && xMoves.length >= MAX_MARKS ? xMoves[0] : -1;
   const oFading = rules === 'vanish' && oMoves.length >= MAX_MARKS ? oMoves[0] : -1;
+
+  // Initialize Web Worker for MCTS with stable onmessage handler
+  useEffect(() => {
+    const worker = new Worker(
+      new URL('../ai/mcts.worker.ts', import.meta.url),
+      { type: 'module' }
+    );
+
+    worker.onmessage = (e: MessageEvent<MCTSWorkerResponse>) => {
+      const { move } = e.data;
+      const pending = pendingMoveRef.current;
+      if (move !== -1 && move !== undefined && pending) {
+        const { newCells, newXMoves, newOMoves } = placeWithVanish(
+          pending.cells, move, pending.computerSymbol,
+          pending.xMoves, pending.oMoves
+        );
+        setCells(newCells);
+        setXMoves(newXMoves);
+        setOMoves(newOMoves);
+        setIsXTurn(pending.computerSymbol !== 'X');
+        setTotalMoves((m) => m + 1);
+      }
+      pendingMoveRef.current = null;
+    };
+
+    workerRef.current = worker;
+    return () => {
+      worker.terminate();
+    };
+  }, []);
 
   const resetBoard = useCallback((firstPlayer?: Player) => {
     setCells(Array(9).fill(null));
@@ -61,6 +89,8 @@ export function useGameState() {
       const worker = workerRef.current;
       if (!worker) return;
 
+      pendingMoveRef.current = { cells: currentCells, computerSymbol, xMoves: curXMoves, oMoves: curOMoves };
+
       const request: MCTSWorkerRequest = {
         cells: [...currentCells],
         computerSym: computerSymbol,
@@ -68,18 +98,6 @@ export function useGameState() {
         oMoves: curOMoves,
         isXTurn: computerSymbol === 'X',
         difficulty,
-      };
-
-      worker.onmessage = (e: MessageEvent<MCTSWorkerResponse>) => {
-        const { move } = e.data;
-        if (move !== -1 && move !== undefined) {
-          const { newCells, newXMoves, newOMoves } = placeWithVanish(currentCells, move, computerSymbol, curXMoves, curOMoves);
-          setCells(newCells);
-          setXMoves(newXMoves);
-          setOMoves(newOMoves);
-          setIsXTurn(computerSymbol !== 'X');
-          setTotalMoves((m) => m + 1);
-        }
       };
 
       worker.postMessage(request);
@@ -102,7 +120,7 @@ export function useGameState() {
     }
   }, [cells, xMoves, oMoves, winner, isDraw, mode, makeAiMove, isComputerTurn]);
 
-  function handleCellClick(index: number) {
+  const handleCellClick = useCallback((index: number) => {
     if (cells[index] || winner || isDraw) return;
     if (mode === 'pvc' && isComputerTurn) return;
 
@@ -120,44 +138,44 @@ export function useGameState() {
       setCells(newCells);
       setIsXTurn(!isXTurn);
     }
-  }
+  }, [cells, winner, isDraw, mode, isComputerTurn, isXTurn, rules, xMoves, oMoves]);
 
-  function handleRestart() {
+  const handleRestart = useCallback(() => {
     const firstMoverSym = humanFirst ? humanSymbol : computerSymbol;
     resetBoard(firstMoverSym);
-  }
+  }, [humanFirst, humanSymbol, computerSymbol, resetBoard]);
 
-  function handleRulesChange(r: Rules) {
+  const handleRulesChange = useCallback((r: Rules) => {
     setRules(r);
     const firstMoverSym = humanFirst ? humanSymbol : computerSymbol;
     resetBoard(firstMoverSym);
-  }
+  }, [humanFirst, humanSymbol, computerSymbol, resetBoard]);
 
-  function handleModeChange(newMode: Mode) {
+  const handleModeChange = useCallback((newMode: Mode) => {
     setMode(newMode);
     setHumanSymbol('X');
     setHumanFirst(true);
     resetBoard('X');
-  }
+  }, [resetBoard]);
 
-  function handleSymbolChange(sym: Player) {
+  const handleSymbolChange = useCallback((sym: Player) => {
     setHumanSymbol(sym);
     const compSym = sym === 'X' ? 'O' : 'X';
     const firstMoverSym = humanFirst ? sym : compSym;
     resetBoard(firstMoverSym);
-  }
+  }, [humanFirst, resetBoard]);
 
-  function handleFirstChange(first: boolean) {
+  const handleFirstChange = useCallback((first: boolean) => {
     setHumanFirst(first);
     const firstMoverSym = first ? humanSymbol : computerSymbol;
     resetBoard(firstMoverSym);
-  }
+  }, [humanSymbol, computerSymbol, resetBoard]);
 
-  function handleDifficultyChange(d: Difficulty) {
+  const handleDifficultyChange = useCallback((d: Difficulty) => {
     setDifficulty(d);
     const firstMoverSym = humanFirst ? humanSymbol : computerSymbol;
     resetBoard(firstMoverSym);
-  }
+  }, [humanFirst, humanSymbol, computerSymbol, resetBoard]);
 
   let status: string;
   if (winner) {
