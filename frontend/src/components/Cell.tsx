@@ -1,4 +1,5 @@
-type Player = 'X' | 'O';
+import { memo } from 'react';
+import type { Player } from '../ai/types';
 
 interface CellProps {
   value: Player | null;
@@ -6,7 +7,7 @@ interface CellProps {
   fading: boolean;
 }
 
-function Cell({ value, onClick, fading }: CellProps) {
+const Cell = memo(function Cell({ value, onClick, fading }: CellProps) {
   const className = `cell${value ? ` ${value.toLowerCase()}` : ''}${fading ? ' fading' : ''}`;
 
   function handleKeyDown(e: React.KeyboardEvent) {
@@ -28,6 +29,6 @@ function Cell({ value, onClick, fading }: CellProps) {
       {value}
     </div>
   );
-}
+});
 
 export default Cell;

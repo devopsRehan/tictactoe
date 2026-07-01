@@ -4,6 +4,9 @@ frontend/node_modules/
 # Build output
 frontend/dist/
 
+# Vite cache
+frontend/.vite/
+
 # Environment files
 .env
 .env.local

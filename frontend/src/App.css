@@ -325,13 +325,13 @@ h1 {
 
 /* Fading cell - will vanish on next move */
 .cell.fading {
-  opacity: 0.35;
+  opacity: 0.5;
   animation: pulse-fade 1s infinite alternate;
 }
 
 @keyframes pulse-fade {
-  0% { opacity: 0.35; }
-  100% { opacity: 0.6; }
+  0% { opacity: 0.5; }
+  100% { opacity: 0.75; }
 }
 
 /* Status */
@@ -377,7 +377,6 @@ h1 {
   cursor: pointer;
   transition: all 0.1s;
   text-shadow: 0 0 4px rgba(0, 255, 255, 0.5);
-  animation: none;
 }
 
 .winning-message button:hover {
