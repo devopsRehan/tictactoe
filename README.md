@@ -84,7 +84,7 @@ This project is licensed under the [MIT License](LICENSE).
 
 **Rehan Khan**  
 DevSecOps | MLOps | GenAIOps | AI/ML/RL 
-[GitHub](https://github.com/devopsRehan) • [LinkedIn](https://www.linkedin.com/in/rehan-khan-devops/)
+[GitHub](https://github.com/k2n-rehan) • [LinkedIn](https://www.linkedin.com/in/rehan-khan-devops/)
 
 ---
 
