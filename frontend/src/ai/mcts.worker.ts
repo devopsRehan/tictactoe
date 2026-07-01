@@ -155,7 +155,7 @@ self.onmessage = (e: MessageEvent<MCTSWorkerRequest>) => {
   const { cells, computerSym, xMoves, oMoves, isXTurn, difficulty } = e.data;
 
   // Easy/Medium: chance of picking a random move instead of optimal
-  const randomChance = { easy: 0.95, medium: 0.6, hard: 0 };
+  const randomChance = { easy: 0.92, medium: 0.5, hard: 0 };
   const available = getAvailableMoves(cells);
 
   if (available.length > 0 && Math.random() < randomChance[difficulty]) {
