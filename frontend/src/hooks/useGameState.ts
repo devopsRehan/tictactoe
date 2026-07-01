@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Player, Difficulty, MAX_MARKS, calculateWinner, isBoardFull, placeWithVanish } from '../ai/types';
+import { Player, Difficulty, MAX_MARKS, calculateWinner, getWinningLine, isBoardFull, placeWithVanish } from '../ai/types';
 import { getClassicMove } from '../ai/alphaBeta';
 import type { MCTSWorkerRequest, MCTSWorkerResponse } from '../ai/mcts.worker';
 
@@ -31,10 +31,19 @@ export function useGameState() {
     oMoves: number[];
   } | null>(null);
 
+  // Ref to hold latest game state for stable handleCellClick
+  const stateRef = useRef({
+    cells, xMoves, oMoves, isXTurn, mode, rules,
+    winner: null as Player | null,
+    isDraw: false,
+    isComputerTurn: false,
+  });
+
   const computerSymbol: Player = humanSymbol === 'X' ? 'O' : 'X';
   const isComputerTurn = isXTurn ? computerSymbol === 'X' : computerSymbol === 'O';
 
   const winner = useMemo(() => calculateWinner(cells), [cells]);
+  const winningLine = useMemo(() => winner ? getWinningLine(cells) : null, [winner, cells]);
   const isDraw = useMemo(
     () => !winner && (rules === 'classic' ? isBoardFull(cells) : totalMoves >= MAX_TOTAL_MOVES),
     [winner, rules, cells, totalMoves]
@@ -42,6 +51,9 @@ export function useGameState() {
 
   const xFading = rules === 'vanish' && xMoves.length >= MAX_MARKS ? xMoves[0] : -1;
   const oFading = rules === 'vanish' && oMoves.length >= MAX_MARKS ? oMoves[0] : -1;
+
+  // Keep stateRef in sync for stable callbacks
+  stateRef.current = { cells, xMoves, oMoves, isXTurn, mode, rules, winner, isDraw, isComputerTurn };
 
   // Initialize Web Worker for MCTS with stable onmessage handler
   useEffect(() => {
@@ -67,6 +79,11 @@ export function useGameState() {
       pendingMoveRef.current = null;
     };
 
+    worker.onerror = () => {
+      // If worker crashes, clear pending so UI doesn't hang on "Computer thinking..."
+      pendingMoveRef.current = null;
+    };
+
     workerRef.current = worker;
     return () => {
       worker.terminate();
@@ -74,6 +91,7 @@ export function useGameState() {
   }, []);
 
   const resetBoard = useCallback((firstPlayer?: Player) => {
+    pendingMoveRef.current = null; // Cancel any in-flight worker response
     setCells(Array(9).fill(null));
     setXMoves([]);
     setOMoves([]);
@@ -121,24 +139,25 @@ export function useGameState() {
   }, [cells, xMoves, oMoves, winner, isDraw, mode, makeAiMove, isComputerTurn]);
 
   const handleCellClick = useCallback((index: number) => {
-    if (cells[index] || winner || isDraw) return;
-    if (mode === 'pvc' && isComputerTurn) return;
+    const { cells: curCells, winner: w, isDraw: d, mode: m, isComputerTurn: ct, isXTurn: xt, rules: r, xMoves: xm, oMoves: om } = stateRef.current;
+    if (curCells[index] || w || d) return;
+    if (m === 'pvc' && ct) return;
 
-    const currentPlayer: Player = isXTurn ? 'X' : 'O';
-    if (rules === 'vanish') {
-      const { newCells, newXMoves, newOMoves } = placeWithVanish(cells, index, currentPlayer, xMoves, oMoves);
+    const currentPlayer: Player = xt ? 'X' : 'O';
+    if (r === 'vanish') {
+      const { newCells, newXMoves, newOMoves } = placeWithVanish(curCells, index, currentPlayer, xm, om);
       setCells(newCells);
       setXMoves(newXMoves);
       setOMoves(newOMoves);
-      setIsXTurn(!isXTurn);
-      setTotalMoves((m) => m + 1);
+      setIsXTurn(!xt);
+      setTotalMoves((n) => n + 1);
     } else {
-      const newCells = [...cells];
+      const newCells = [...curCells];
       newCells[index] = currentPlayer;
       setCells(newCells);
-      setIsXTurn(!isXTurn);
+      setIsXTurn(!xt);
     }
-  }, [cells, winner, isDraw, mode, isComputerTurn, isXTurn, rules, xMoves, oMoves]);
+  }, []);
 
   const handleRestart = useCallback(() => {
     const firstMoverSym = humanFirst ? humanSymbol : computerSymbol;
@@ -194,6 +213,7 @@ export function useGameState() {
     cells,
     xFading,
     oFading,
+    winningLine,
     mode,
     rules,
     difficulty,

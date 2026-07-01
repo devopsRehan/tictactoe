@@ -18,6 +18,16 @@ export function calculateWinner(cells: (Player | null)[]): Player | null {
   return null;
 }
 
+export function getWinningLine(cells: (Player | null)[]): number[] | null {
+  for (const combo of WINNING_COMBINATIONS) {
+    const [a, b, c] = combo;
+    if (cells[a] && cells[a] === cells[b] && cells[a] === cells[c]) {
+      return combo;
+    }
+  }
+  return null;
+}
+
 export function isBoardFull(cells: (Player | null)[]): boolean {
   return cells.every((cell) => cell !== null);
 }

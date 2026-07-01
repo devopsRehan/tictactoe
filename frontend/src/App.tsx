@@ -7,6 +7,7 @@ function App() {
     cells,
     xFading,
     oFading,
+    winningLine,
     mode,
     rules,
     difficulty,
@@ -137,7 +138,7 @@ function App() {
           )}
         </>
       )}
-      <Board cells={cells} onCellClick={handleCellClick} fadingIndices={fadingIndices} />
+      <Board cells={cells} onCellClick={handleCellClick} fadingIndices={fadingIndices} winningIndices={winningLine} />
       <div aria-live="polite" aria-atomic="true">
         {(winner || isDraw) && (
           <div className="winning-message show">

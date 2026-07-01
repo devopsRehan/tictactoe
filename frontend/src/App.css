@@ -334,6 +334,26 @@ h1 {
   100% { opacity: 0.75; }
 }
 
+/* Winning cells highlight */
+.cell.winning {
+  animation: win-glow 0.6s ease-in-out infinite alternate;
+  border-color: #ff0 !important;
+  box-shadow: 0 0 12px #ff0, inset 0 0 8px rgba(255, 255, 0, 0.15);
+}
+
+.cell.winning.x {
+  text-shadow: 0 0 8px #f33, 0 0 20px rgba(255, 50, 50, 0.8);
+}
+
+.cell.winning.o {
+  text-shadow: 0 0 8px #33f, 0 0 20px rgba(50, 50, 255, 0.8);
+}
+
+@keyframes win-glow {
+  0% { border-color: #ff0; box-shadow: 0 0 8px #ff0, inset 0 0 6px rgba(255, 255, 0, 0.1); }
+  100% { border-color: #ffa; box-shadow: 0 0 20px #ff0, inset 0 0 12px rgba(255, 255, 0, 0.25); }
+}
+
 /* Status */
 .status {
   margin-top: 14px;

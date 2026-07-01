@@ -6,10 +6,11 @@ interface CellProps {
   value: Player | null;
   onClick: (index: number) => void;
   fading: boolean;
+  winning: boolean;
 }
 
-const Cell = memo(function Cell({ index, value, onClick, fading }: CellProps) {
-  const className = `cell${value ? ` ${value.toLowerCase()}` : ''}${fading ? ' fading' : ''}`;
+const Cell = memo(function Cell({ index, value, onClick, fading, winning }: CellProps) {
+  const className = `cell${value ? ` ${value.toLowerCase()}` : ''}${fading ? ' fading' : ''}${winning ? ' winning' : ''}`;
 
   const handleClick = useCallback(() => onClick(index), [onClick, index]);
 
