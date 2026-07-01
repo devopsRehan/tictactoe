@@ -93,11 +93,13 @@ function simulate(node: MCTSNode, computerSym: Player): number {
   return 0;
 }
 
-function backpropagate(node: MCTSNode | null, result: number) {
+function backpropagate(node: MCTSNode | null, result: number, computerSym: Player) {
   while (node) {
     node.visits++;
-    node.wins += result;
-    result = -result;
+    // Who moved to reach this node? (the opposite of whose turn it is here)
+    const mover: Player = node.isXTurn ? 'O' : 'X';
+    // Store wins from the mover's perspective so UCB1 selects best for the current player
+    node.wins += (mover === computerSym) ? result : -result;
     node = node.parent;
   }
 }
@@ -123,7 +125,7 @@ function mctsSearch(
     }
 
     const result = simulate(node, computerSym);
-    backpropagate(node, result);
+    backpropagate(node, result, computerSym);
   }
 
   let bestChild = root.children[0];
@@ -151,7 +153,7 @@ export interface MCTSWorkerResponse {
 // Web Worker message handler
 self.onmessage = (e: MessageEvent<MCTSWorkerRequest>) => {
   const { cells, computerSym, xMoves, oMoves, isXTurn, difficulty } = e.data;
-  const iterationsByDifficulty = { easy: 100, medium: 500, hard: 2000 };
+  const iterationsByDifficulty = { easy: 500, medium: 3000, hard: 10000 };
   const iterations = iterationsByDifficulty[difficulty];
   const move = mctsSearch(cells, xMoves, oMoves, isXTurn, computerSym, iterations);
   const response: MCTSWorkerResponse = { move };
