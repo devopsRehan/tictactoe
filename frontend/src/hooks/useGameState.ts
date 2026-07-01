@@ -25,11 +25,13 @@ export function useGameState() {
 
   const workerRef = useRef<Worker | null>(null);
   const pendingMoveRef = useRef<{
+    generation: number;
     cells: (Player | null)[];
     computerSymbol: Player;
     xMoves: number[];
     oMoves: number[];
   } | null>(null);
+  const generationRef = useRef(0);
 
   // Ref to hold latest game state for stable handleCellClick
   const stateRef = useRef({
@@ -65,7 +67,8 @@ export function useGameState() {
     worker.onmessage = (e: MessageEvent<MCTSWorkerResponse>) => {
       const { move } = e.data;
       const pending = pendingMoveRef.current;
-      if (move !== -1 && move !== undefined && pending) {
+      // Only apply if this response matches the current generation (not stale)
+      if (move !== -1 && move !== undefined && pending && pending.generation === generationRef.current) {
         const { newCells, newXMoves, newOMoves } = placeWithVanish(
           pending.cells, move, pending.computerSymbol,
           pending.xMoves, pending.oMoves
@@ -91,7 +94,8 @@ export function useGameState() {
   }, []);
 
   const resetBoard = useCallback((firstPlayer?: Player) => {
-    pendingMoveRef.current = null; // Cancel any in-flight worker response
+    generationRef.current++; // Invalidate any in-flight worker responses
+    pendingMoveRef.current = null;
     setCells(Array(9).fill(null));
     setXMoves([]);
     setOMoves([]);
@@ -107,7 +111,7 @@ export function useGameState() {
       const worker = workerRef.current;
       if (!worker) return;
 
-      pendingMoveRef.current = { cells: currentCells, computerSymbol, xMoves: curXMoves, oMoves: curOMoves };
+      pendingMoveRef.current = { generation: generationRef.current, cells: currentCells, computerSymbol, xMoves: curXMoves, oMoves: curOMoves };
 
       const request: MCTSWorkerRequest = {
         cells: [...currentCells],

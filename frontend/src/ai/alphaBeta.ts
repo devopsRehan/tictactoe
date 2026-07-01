@@ -69,12 +69,13 @@ function getRandomMove(cells: (Player | null)[]): number {
 }
 
 export function getClassicMove(cells: (Player | null)[], computerSym: Player, difficulty: Difficulty): number {
+  const board = [...cells];
   switch (difficulty) {
     case 'easy':
-      return Math.random() < 0.2 ? getOptimalMove([...cells], computerSym) : getRandomMove(cells);
+      return Math.random() < 0.2 ? getOptimalMove(board, computerSym) : getRandomMove(board);
     case 'medium':
-      return Math.random() < 0.6 ? getOptimalMove([...cells], computerSym) : getRandomMove(cells);
+      return Math.random() < 0.6 ? getOptimalMove(board, computerSym) : getRandomMove(board);
     case 'hard':
-      return getOptimalMove([...cells], computerSym);
+      return getOptimalMove(board, computerSym);
   }
 }
